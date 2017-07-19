@@ -4,10 +4,7 @@ import os
 import re
 import requests
 import time
-
-# target_dir = '~/PersCode/finatra/'
-target_dir = '~/PersCode/finatra/doc/src/sphinx/user-guide/logging/'
-target_ext = 'rst'
+import argparse
 
 
 class BadThing:
@@ -77,37 +74,56 @@ def link_in_set_check(link, tgt_set):
     return False
 
 
-file_lookup = dict()
-dirs = find_target_files(target_dir, target_ext)
-for item in dirs:
-    print('Scanning {}'.format(item))
-    file_lookup[item] = extract_links(item)
+def parse_args():
+    parser = argparse.ArgumentParser(description='Check RST docs for bad links.')
+    parser.add_argument('target_dir', type=str, help='what directory to peek at', metavar='directory')
+    parser.add_argument('--ext', type=str, help='what extension to look for', default='rst', dest='ext')
 
-all_links = set()
-# Aggregate the links so we only ping them once
-for key, vals in file_lookup.items():
-    all_links = all_links.union(vals)
+    args = parser.parse_args()
+    target_dir = args.target_dir
+    target_ext = args.ext.lower()
+    return target_dir, target_ext
 
-print('We are going to be checking {} links for validity.'.format(len(all_links)))
-link_statuses = []
 
-for item in all_links:
-    # TODO: Create a cache file with these results and when they were collected, then read that and compare against a threshold later.
-    try:
-        req = requests.get(item)
-    except:  # NOQA
-        req = BadThing()
-    if req.status_code != 200:
-        print_red('Checked {} with code {}'.format(item, req.status_code))
-    else:
-        print_green('Checked {} with code {}'.format(item, req.status_code))
-    link_statuses.append([req.status_code, item])
-    time.sleep(1)
+def gather_ext_file_list(target_dir, target_ext):
+    file_lookup = dict()
+    dirs = find_target_files(target_dir, target_ext)
+    for item in dirs:
+        print('Scanning {}'.format(item))
+        file_lookup[item] = extract_links(item)
+    return file_lookup
 
-print("\nWhich files are the bad links in?")
 
-for item in link_statuses:
-    if item[0] < 200 | item[0] >= 300:
-        for k, v in file_lookup.items():
-            if link_in_set_check(item[1], v):
-                print_red('{} contains bad link to {}'.format(k, item[1]))
+def main():
+    target_dir, target_ext = parse_args()
+    print('Scanning {} for {} files.'.format(target_dir, target_ext))
+
+    file_lookup = gather_ext_file_list(target_dir, target_ext)
+    all_links = set()
+    # Aggregate the links so we only ping them once
+    for key, vals in file_lookup.items():
+        all_links = all_links.union(vals)
+
+    print('We are going to be checking {} links for validity.'.format(len(all_links)))
+    link_statuses = []
+
+    for item in all_links:
+        # TODO: Create a cache file with these results and when they were collected, then read that and compare against a threshold later.
+        try:
+            req = requests.get(item)
+        except:  # NOQA
+            req = BadThing()
+        if req.status_code != 200:
+            print_red('Checked {} with code {}'.format(item, req.status_code))
+        else:
+            print_green('Checked {} with code {}'.format(item, req.status_code))
+        link_statuses.append([req.status_code, item])
+        time.sleep(1)
+
+    print("\nWhich files are the bad links in?")
+
+    for item in link_statuses:
+        if item[0] < 200 | item[0] >= 300:
+            for k, v in file_lookup.items():
+                if link_in_set_check(item[1], v):
+                    print_red('{} contains bad link to {}'.format(k, item[1]))
