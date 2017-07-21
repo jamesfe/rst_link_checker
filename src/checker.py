@@ -116,3 +116,7 @@ def main():
             for k, v in file_lookup.items():
                 if link_in_set_check(item[1], v):
                     print_red('{} contains bad link to {}'.format(k, item[1]))
+
+
+if __name__ == '__main__':
+    main()
