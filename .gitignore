@@ -1,0 +1,6 @@
+*.pyc
+**/__pycache__/**
+
+
+# Maybe to change later:
+test_data/
