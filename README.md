@@ -8,6 +8,5 @@ You can use it if you want.  There is a 1sec delay between HTTP calls to ensure 
 
 ```
 pip install -r requirements.txt
-# change some config vars in checker.py (this is a todo)
-./src/checker.py
+./src/checker.py [dir to scan] -(optional: --ext rst)
 ```
