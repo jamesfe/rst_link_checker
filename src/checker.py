@@ -12,7 +12,7 @@ class BadThing:
     status_code = 999
 
 
-class bcolors:
+class ConsoleColors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
@@ -27,11 +27,11 @@ class bcolors:
 
 
 def print_red(thing):
-    print('{}{}{}'.format(bcolors.RED, thing, bcolors.NC))
+    print('{}{}{}'.format(ConsoleColors.RED, thing, ConsoleColors.NC))
 
 
 def print_green(thing):
-    print('{}{}{}'.format(bcolors.GREEN, thing, bcolors.NC))
+    print('{}{}{}'.format(ConsoleColors.GREEN, thing, ConsoleColors.NC))
 
 
 def find_target_files(target_dir, target_ext):
