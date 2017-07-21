@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-import re
 import requests
 import time
 import argparse
+
+from utils import checkline
 
 
 class BadThing:
@@ -41,18 +42,6 @@ def find_target_files(target_dir, target_ext):
         for item in files:
             if item.lower().endswith(target_ext):
                 ret_vals.append(os.path.join(root, item))
-    return ret_vals
-
-
-def checkline(line):
-    """ Return any non-relative links. """
-    links = re.findall('<(http.*?)>', line)
-    ret_vals = []
-    for item in links:
-        if '#' in item:
-            ret_vals.append(item.split('#')[0])
-        else:
-            ret_vals.append(item)
     return ret_vals
 
 
